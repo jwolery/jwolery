@@ -1,16 +1,16 @@
-$IPAddress = Read-Host -Prompt "Enter IP address"
+$IPAddress = Read-Host -Prompt "Hello $env:USERNAME, Please Enter a valid IP address to query."
 $a = $IPAddress
 $ipcheck = ($a -as [IPaddress]) -as [Bool]
 if($ipcheck)
 {
-    write-host "Valid ip address"
+    write-host "Ok, that looks like a Valid ip address, I will check the average latency over 10 pings."
 }
 elseif($a -like "*/*" -or $a -like "*-*")
 {
     $cidr = $a.split("/")
     if($cidr[1] -ge '0' -and $cidr[1] -le '32')
     {
-        write-host "valid subnet"
+        write-host "Ok, that looks like a valid subnet"
     }
     elseif($a -like "*-*")
     {
@@ -19,7 +19,7 @@ elseif($a -like "*/*" -or $a -like "*-*")
         $ip2 = $ip[1] -as [IPaddress] -as [Bool]
         if($ip -and $ip)
         {
-            write-host "valid ip address range"
+            write-host "Ok, that looks like a valid ip address range"
         }
         else
         {
@@ -33,10 +33,18 @@ elseif($a -like "*/*" -or $a -like "*-*")
 }
 else
 {
-    write-host "not valid address"
-    $IPAddress = Read-Host -Prompt "Enter IP address"
+    write-host "Sorry friend, that is not a valid address"
+    $IPAddress = Read-Host -Prompt "Please re-enter the IP address"
 }
-$Ping = Test-Connection -Count 10 -ComputerName $IPAddress
+try {
+    $Ping = Test-Connection -Count 10 -ComputerName $IPAddress
+    }
+catch {
+    Write-Host "Hmm, Looks like this IP is not responding to Pings." -ForegroundColor RED
+}
+finally {
+    $Error.Clear()
+}
 $Avg = ($Ping | Measure-Object ResponseTime -average)
 $Calc = [System.Math]::Round($Avg.average)
 "The average response time to $IPAddress is $Calc ms `n"
