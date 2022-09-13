@@ -4,9 +4,11 @@
 .DESCRIPTION
     Specify an IPv4 Address to Calculate average of 10 pings, number of hops, GEOIP information and Weather information
 .NOTES
+    Script made and tested on Powershell 5.1 which is the default that ships with windows.
     This script is not digitally signed so you must 'Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 ' to use it.
-    CmdLetBinding paramaters are still not working so you cannot input IP on the command line yet.
+    CmdLetBinding paramaters are still not working yet so you cannot use command line input or save to JSON.
+    Once I restructure the script into functions with CmdLetBinding this should be possible to implement.
 .LINK
 
 .EXAMPLE
@@ -15,9 +17,7 @@
     when prompted input an IPv4 IP Address.
 #>
 
-
 $IPAddress = Read-Host -Prompt "Hello $env:USERNAME, Please enter an IP address to query"
-$ErrorActionPreference = "Stop"
 $ipcheck = ($IPAddress -as [IPaddress]) -as [Bool]
 if($ipcheck)
 {
@@ -48,7 +48,6 @@ if ($Calc -gt 1) {
     <# Action when this condition is true #>
     try {
         Write-Host "Almost done! Next lets TraceRoute to calculate number of hops, this may take a minute or 2."
-        $ProgressPreference = 'SilentlyContinue'
         $NumHops = (Test-NetConnection -TraceRoute -ComputerName $IPAddress -ErrorAction Stop).traceroute.count
         ''
         Write-Host 'SUCCESS! Thanks for waiting, Here is what I found:' -ForegroundColor Green
