@@ -1,7 +1,24 @@
+<#  IPInfo
+.SYNOPSIS
+    Gathers information on an IP address - Created as a scripting Challenge for Tim @ Rewst.io
+.DESCRIPTION
+    Specify an IPv4 Address to Calculate average of 10 pings, number of hops, GEOIP information and Weather information
+.NOTES
+    This script is not digitally signed so you must 'Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+' to use it.
+    CmdLetBinding paramaters are still not working so you cannot input IP on the command line yet.
+.LINK
+
+.EXAMPLE
+    Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+    .\IPinfo
+    when prompted input an IPv4 IP Address.
+#>
+
+
 $IPAddress = Read-Host -Prompt "Hello $env:USERNAME, Please enter an IP address to query"
-$a = $IPAddress
 $ErrorActionPreference = "Stop"
-$ipcheck = ($a -as [IPaddress]) -as [Bool]
+$ipcheck = ($IPAddress -as [IPaddress]) -as [Bool]
 if($ipcheck)
 {
     ''
