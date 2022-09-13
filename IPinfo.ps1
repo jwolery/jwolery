@@ -22,7 +22,7 @@ try {
     $Ping = Test-Connection -Count 10 -ComputerName $IPAddress
     }
 catch {
-    Write-Host "ERROR: Looks like this IP is either not responding to Pings or possibly Invalid." -ForegroundColor RED
+    Write-Host "ERROR: Looks like this IP is either not responding to Pings, offline or possibly Invalid." -ForegroundColor RED
     Exit
 }
 $Avg = ($Ping | Measure-Object ResponseTime -average)
@@ -30,6 +30,9 @@ $Calc = [System.Math]::Round($Avg.average)
 if ($Calc -gt 1) {
     <# Action when this condition is true #>
     try {
+        Write-Host "Almost done! Next lets TraceRoute to calculate number of hops, this may take a minute or 2."
+        $ProgressPreference = 'SilentlyContinue'
+        $NumHops = (Test-NetConnection -TraceRoute -ComputerName $IPAddress -ErrorAction Stop).traceroute.count
         ''
         Write-Host 'SUCCESS! Thanks for waiting, Here is what I found:' -ForegroundColor Green
         Invoke-RestMethod -Method Get -Uri "http://ip-api.com/json/$IPAddress" -ErrorAction SilentlyContinue | Foreach-object {
@@ -45,7 +48,7 @@ if ($Calc -gt 1) {
         $IPAS = [PScustomObject]$_.as
     }
     ''
-    Write-Host "The average latency to $IPAddress is $Calc ms and is located in $IPCity, $IPRegion in $IPCountry." -ForegroundColor DarkYellow
+    Write-Host "The average latency to $IPAddress (over $NumHops Hops) is $Calc ms and is located in $IPCity, $IPRegion in $IPCountry." -ForegroundColor DarkYellow
     ''
     Write-Host "The reported Latitude & Longitude is $IPLat,$IPLon and the postal code is $IPZip." -ForegroundColor DarkYellow
     ''
@@ -66,7 +69,18 @@ Invoke-RestMethod -Method Get -Uri "http://worldtimeapi.org/api/ip/$IPAddress.js
 Write-Host 'Here is todays weather around that area:' -ForegroundColor Blue
 ''
 (curl wttr.in/"$IPCity,$IPRegion"?0 -UserAgent "curl" ).Content
-
-# reset variables for next run
+# reset variables for next run - this ensures no data is carried over between runs if it is not replaced by new data
 $Calc = $null
 $Avg = $null
+$IPAddress = $null
+$NumHops = $null
+$IPCity = $null
+$IPRegion = $null
+$IPCountry = $null
+$IPtz = $null
+$IPLat = $null
+$IPLon = $null
+$IPZip = $null
+$IPOrg = $null
+$IPISP = $null
+$IPAS = $null
