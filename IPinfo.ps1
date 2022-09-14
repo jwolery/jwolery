@@ -5,17 +5,17 @@ function Get-IPinfo {
     .DESCRIPTION
         Specify an IPv4 Address to Calculate average of 10 pings, number of hops, GEOIP information and Weather information
     .NOTES
-    Script made and tested on Powershell 5.1 which is the default that ships with windows.
-    This script is not digitally signed so you must 'Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+        Script made and tested on Powershell 5.1 which is the default that ships with windows.
+        This script is not digitally signed so you must 'Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 ' to use it.
-    CmdLetBinding paramaters are still not fully working yet so you cannot use command line input or save to JSON, However IP command line input is now functional.
+        CmdLetBinding paramaters are still not fully working yet so you cannot use command line input or save to JSON, However IP command line input is now functional.
     .LINK
         
     .EXAMPLE
-    Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-    .\IPinfo
-    Get-IPinfo, when prompted input an IPv4 IP Address.
-    OR Get-IPinfo 8.8.8.8
+        Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+        .\IPinfo
+        Get-IPinfo, when prompted input an IPv4 IP Address.
+        OR Get-IPinfo 8.8.8.8
     #>
     
     [CmdletBinding()]
@@ -54,7 +54,7 @@ function Get-IPinfo {
                 if($IPAddress -eq "")
                 # Catch for repeated Blank Input #
                 {
-                    Write-Host "$env:USERNAME, You didn't enter an IP Address I am a powershell script not a phsycic!" -ForegroundColor RED
+                    Write-Host "$env:USERNAME, You didn't enter an IP Address I am a powershell script not a psychic!" -ForegroundColor RED
                     Exit
                 }
                 # IPaddress is valid #
