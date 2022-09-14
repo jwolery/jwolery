@@ -30,7 +30,8 @@ function Get-IPinfo {
         if($IPAddress -eq $null)
         {
             $IPAddress = Read-Host -Prompt "Hello $env:USERNAME, Please enter an IP address to query"
-        }    
+        }
+        # 2 stage IP Validation - attempts to catch bad & blank secondary input#    
         if ($IPAddress -notmatch "(?:(?:1\d\d|2[0-5][0-5]|2[0-4]\d|0?[1-9]\d|0?0?\d)\.){3}(?:1\d\d|2[0-5][0-5]|2[0-4]\d|0?[1-9]\d|0?0?\d)")
         {
             Write-Host "ERROR: $IPaddress not a valid IPv4 address please try again." -ForegroundColor RED -ErrorAction SilentlyContinue
@@ -40,7 +41,6 @@ function Get-IPinfo {
         if($ipcheck)
             {
                 ''
-                write-host "Thanks! This looks like a Valid IP Address." -ForegroundColor Green
             }
             else
             {
@@ -54,12 +54,15 @@ function Get-IPinfo {
             }
             try {
                 if($IPAddress -eq "")
+                # Catch for repeated Blank Input #
                 {
-                    Write-Host "$env:USERNAME, You didn't enter an IP Address I am a powershell script not a phsycic!"
-                    Stop
+                    Write-Host "$env:USERNAME, You didn't enter an IP Address I am a powershell script not a phsycic!" -ForegroundColor RED
+                    Exit
                 }
+                # IPaddress is valid #
+                write-host "Thanks $env:USERNAME! This looks like a Valid IP Address." -ForegroundColor Green
                 ''
-                write-host "I will check if this IP ping-able however if its not responsive I won't be able to provide any info."    
+                write-host "I will check if this IP responds to Pings however if it doesn't I won't be able to provide any info."    
                 ''
                 write-host "Please give me a moment to validate, fetch Geo Location info and calculate an average of 10 Pings."
                 $Ping = Test-Connection -Count 10 -ComputerName $IPAddress  -ErrorAction Stop
@@ -68,12 +71,13 @@ function Get-IPinfo {
                 Write-Host "ERROR: Looks like this IP is either not responding to Pings, offline or possibly Invalid." -ForegroundColor RED
                 Exit
             }
+            # Calculates average Ping if pings were returned #
             $Avg = ($Ping | Measure-Object ResponseTime -average)
             $Calc = [System.Math]::Round($Avg.average)
             if ($Calc -gt 1) {
                 <# Proceed to fetch GeoLocation Data #>
                 try {
-                    Write-Host "...Almost done! Next lets TraceRoute to calculate number of hops, this may take a minute or 2."
+                    Write-Host "...Almost done! Next lets TraceRoute to calculate number of hops, this may take a minute."
                     $NumHops = (Test-NetConnection -TraceRoute -ComputerName $IPAddress -ErrorAction Stop).traceroute.count
                     ''
                     Write-Host 'SUCCESS! Thanks for waiting, Here is what I found:' -ForegroundColor Green
@@ -89,6 +93,7 @@ function Get-IPinfo {
                     $IPISP = [PScustomObject]$_.ISP
                     $IPAS = [PScustomObject]$_.as
                 }
+                # Present Geo Location data in a friendly manner #
                 ''
                 Write-Host "The average latency to $IPAddress (over $NumHops Hops) is $Calc ms and is located in $IPCity, $IPRegion in $IPCountry." -ForegroundColor Yellow
                 ''
@@ -98,7 +103,7 @@ function Get-IPinfo {
                 ''
             }
             catch {
-            Write-Warning -Message "$IPAddress : $_"
+            Write-Warning -Message "$IPAddress : $_ Something went wrong with GEOIP Fetch."
             }
         }
         # Get the current datetime of the IP
@@ -108,7 +113,7 @@ function Get-IPinfo {
         }
         # Get the Weather for the Geolocation Data
         ''
-        Write-Host 'Here is todays weather around that area:' -ForegroundColor Blue
+        Write-Host "Now, lets check todays weather around the $IPCity area." -ForegroundColor Blue
         ''
         (curl wttr.in/"$IPCity,$IPRegion"?0 -UserAgent "curl" ).Content
         # reset variables for next run - this ensures no data is carried over between runs if it is not replaced by new data
