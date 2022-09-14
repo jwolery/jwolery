@@ -21,8 +21,11 @@ function Get-IPinfo {
     [CmdletBinding()]
     param (
         [Parameter (Mandatory = $false,
-        ValueFromPipeline = $false)]
-        $IPAddress
+        ValueFromPipeline = $false,Position=0)]
+        $IPAddress,
+        [Parameter (Mandatory = $false,
+        ValueFromPipeline = $false,Position=1)]
+        [string] $JsonFile
         )
         # Prompt for IP if none is specified #
         if($IPAddress -eq $null)
@@ -114,6 +117,18 @@ function Get-IPinfo {
         Write-Host "Now, lets check todays weather around the $IPCity area." -ForegroundColor Blue
         ''
         (curl wttr.in/"$IPCity,$IPRegion"?0 -UserAgent "curl" ).Content
+        # Output GEO-IP info to JSON #
+        if ($JsonFile -ne $null)
+        {
+            try {
+                Invoke-RestMethod -Method Get -Uri "http://ip-api.com/json/$IPAddress" -ErrorAction SilentlyContinue | Out-File $JsonFile
+                Write-Host "Saved JSON file as $JsonFile"
+            }
+            catch {
+                Write-Host "No json filename specified, if you would like to save a JSON please provide a filename. EXAMPLE: Get-IPinfo 8.8.8.8 googledns.json"
+            }
+        }
+        
         # reset variables for next run - this ensures no data is carried over between runs if it is not replaced by new data
         $Calc = $null
         $Avg = $null
@@ -128,6 +143,7 @@ function Get-IPinfo {
         $IPZip = $null
         $IPOrg = $null
         $IPISP = $null
-        $IPAS = $null  
+        $IPAS = $null
+        $JsonFile = $null  
         }  
 
