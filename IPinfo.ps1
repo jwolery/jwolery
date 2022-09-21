@@ -147,3 +147,4 @@ function Get-IPinfo {
         $JsonFile = $null  
         }  
 
+Get-IPinfo
